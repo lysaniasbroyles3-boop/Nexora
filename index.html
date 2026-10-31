@@ -1,0 +1,130 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NEXORA | Smarter Solutions</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Opening animation -->
+  <div id="intro">
+    <div class="intro-logo">N</div>
+    <h1>NEXORA</h1>
+    <p>Smarter Solutions</p>
+  </div>
+
+  <!-- Main application -->
+  <div id="app">
+
+    <header class="topbar">
+      <div class="brand">
+        <span class="brand-logo">N</span>
+        <div>
+          <h1>NEXORA</h1>
+          <p>Smarter Solutions</p>
+        </div>
+      </div>
+      <span class="status">● SYSTEM ONLINE</span>
+    </header>
+
+    <div class="layout">
+      <aside class="sidebar">
+        <h3>WORKSPACE</h3>
+        <button class="nav-btn active" data-page="dashboard">Dashboard</button>
+        <button class="nav-btn" data-page="inventory">Inventory</button>
+        <button class="nav-btn" data-page="sales">Sales</button>
+        <button class="nav-btn" data-page="history">Sales History</button>
+      </aside>
+
+      <main class="content">
+
+        <section id="dashboard" class="page active">
+          <h2>Business Dashboard</h2>
+          <p class="subtitle">Your business at a glance.</p>
+
+          <div class="stats">
+            <div class="stat-card">
+              <p>Total Revenue</p>
+              <h2 id="totalRevenue">$0.00</h2>
+            </div>
+            <div class="stat-card">
+              <p>Total Orders</p>
+              <h2 id="totalOrders">0</h2>
+            </div>
+            <div class="stat-card">
+              <p>Products</p>
+              <h2 id="totalProducts">0</h2>
+            </div>
+            <div class="stat-card">
+              <p>Low Stock</p>
+              <h2 id="lowStock">0</h2>
+            </div>
+          </div>
+
+          <div class="panel">
+            <h3>Quick Actions</h3>
+            <div class="actions">
+              <button class="primary-btn" data-go="inventory">Manage Inventory</button>
+              <button class="primary-btn" data-go="sales">Record a Sale</button>
+            </div>
+          </div>
+        </section>
+
+        <section id="inventory" class="page">
+          <h2>Inventory Manager</h2>
+          <p class="subtitle">Add and manage your products.</p>
+
+          <div class="panel">
+            <h3>Add a Product</h3>
+            <form id="productForm">
+              <input id="productName" type="text" placeholder="Product name" required>
+              <input id="productPrice" type="number" min="0.01" step="0.01" placeholder="Price" required>
+              <input id="productStock" type="number" min="0" step="1" placeholder="Starting stock" required>
+              <button class="primary-btn" type="submit">Add Product</button>
+            </form>
+          </div>
+
+          <div class="panel">
+            <h3>Your Products</h3>
+            <div id="productList"></div>
+          </div>
+        </section>
+
+        <section id="sales" class="page">
+          <h2>Record a Sale</h2>
+          <p class="subtitle">Keep track of your business sales.</p>
+
+          <div class="panel">
+            <form id="saleForm">
+              <label for="saleProduct">Choose a product</label>
+              <select id="saleProduct" required>
+                <option value="">Select a product</option>
+              </select>
+
+              <label for="saleQuantity">Quantity</label>
+              <input id="saleQuantity" type="number" min="1" step="1" value="1" required>
+
+              <button class="primary-btn" type="submit">Complete Sale</button>
+            </form>
+            <p id="saleMessage"></p>
+          </div>
+        </section>
+
+        <section id="history" class="page">
+          <h2>Sales History</h2>
+          <p class="subtitle">Review your recorded orders.</p>
+          <div class="panel">
+            <div id="salesHistory"></div>
+          </div>
+        </section>
+
+      </main>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
