@@ -128,3 +128,23 @@
   <script src="script.js"></script>
 </body>
 </html>
+<!-- NEXORA DOCS APP -->
+<div class="app-card" id="docsCard">
+    <div class="app-icon">📄</div>
+    <h3>NEXORA Docs</h3>
+    <p id="docsStatus">Checking availability...</p>
+
+    <button id="docsButton" onclick="openDocs()">
+        Open Docs
+    </button>
+</div>
+
+<!-- DOCS WELCOME POPUP -->
+<div id="docsWelcome" class="docs-modal">
+    <div class="docs-modal-content">
+        <h2>📄 Welcome to NEXORA Docs!</h2>
+        <p>Your document workspace is ready.</p>
+        <button onclick="openDocs()">Launch Docs</button>
+        <button onclick="closeDocsPopup()">Continue to Dashboard</button>
+    </div>
+</div>
