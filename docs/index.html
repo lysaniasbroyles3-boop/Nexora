@@ -1,0 +1,177 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEXORA Docs</title>
+    <link rel="stylesheet" href="docs.css">
+</head>
+<body>
+
+<header class="topbar">
+    <div class="brand">
+        <span class="logo">N</span>
+        <div>
+            <h2>NEXORA <span>Docs</span></h2>
+            <small>Professional Document Workspace</small>
+        </div>
+    </div>
+
+    <input id="documentName" value="Untitled Document"
+           aria-label="Document name">
+
+    <div class="top-actions">
+        <span id="saveStatus">Saved</span>
+        <button onclick="newDocument()">＋ New</button>
+        <button onclick="downloadDocument()">↓ Download</button>
+    </div>
+</header>
+
+<nav class="menu">
+    <button onclick="showMenuInfo('File')">File</button>
+    <button onclick="showMenuInfo('Edit')">Edit</button>
+    <button onclick="showMenuInfo('View')">View</button>
+    <button onclick="showMenuInfo('Insert')">Insert</button>
+    <button onclick="showMenuInfo('Format')">Format</button>
+    <button onclick="showMenuInfo('Tools')">Tools</button>
+</nav>
+
+<main class="workspace">
+
+    <section class="editor-area">
+
+        <div class="toolbar">
+
+            <select id="paragraphStyle" onchange="setParagraph(this.value)">
+                <option value="p">Normal text</option>
+                <option value="h1">Heading 1</option>
+                <option value="h2">Heading 2</option>
+                <option value="h3">Heading 3</option>
+            </select>
+
+            <select id="fontFamily" onchange="setFont(this.value)">
+                <option value="Arial">Arial</option>
+                <option value="Georgia">Georgia</option>
+                <option value="Times New Roman">Times New Roman</option>
+                <option value="Verdana">Verdana</option>
+                <option value="Courier New">Courier New</option>
+            </select>
+
+            <select id="fontSize" onchange="setSize(this.value)">
+                <option value="1">8 pt</option>
+                <option value="2">10 pt</option>
+                <option value="3" selected>12 pt</option>
+                <option value="4">14 pt</option>
+                <option value="5">18 pt</option>
+                <option value="6">24 pt</option>
+                <option value="7">36 pt</option>
+            </select>
+
+            <div class="tool-divider"></div>
+
+            <button onclick="format('bold')" title="Bold"><b>B</b></button>
+            <button onclick="format('italic')" title="Italic"><i>I</i></button>
+            <button onclick="format('underline')" title="Underline"><u>U</u></button>
+            <button onclick="format('strikeThrough')" title="Strikethrough"><s>S</s></button>
+
+            <label class="color-tool" title="Text color">
+                A
+                <input type="color" onchange="setTextColor(this.value)">
+            </label>
+
+            <label class="color-tool highlight-tool" title="Highlight">
+                ▰
+                <input type="color" value="#fff176"
+                       onchange="highlightText(this.value)">
+            </label>
+
+            <div class="tool-divider"></div>
+
+            <button onclick="format('justifyLeft')" title="Align left">☰</button>
+            <button onclick="format('justifyCenter')" title="Center">≡</button>
+            <button onclick="format('justifyRight')" title="Align right">☷</button>
+
+            <button onclick="format('insertUnorderedList')" title="Bullets">• List</button>
+            <button onclick="format('insertOrderedList')" title="Numbered list">1. List</button>
+
+            <div class="tool-divider"></div>
+
+            <button onclick="format('undo')">↶</button>
+            <button onclick="format('redo')">↷</button>
+        </div>
+
+        <div class="second-toolbar">
+            <button onclick="insertLink()">🔗 Link</button>
+            <button onclick="insertTable()">▦ Table</button>
+            <button onclick="insertImage()">▧ Image</button>
+            <button onclick="format('removeFormat')">Clear formatting</button>
+            <button onclick="format('indent')">Indent</button>
+            <button onclick="format('outdent')">Outdent</button>
+            <button onclick="window.print()">Print</button>
+        </div>
+
+        <div class="page-background">
+            <article
+                id="editor"
+                contenteditable="true"
+                spellcheck="true"
+                aria-label="Document editor"
+            >
+                <h1>Welcome to NEXORA Docs</h1>
+                <p>Start writing your next great idea...</p>
+                <p>You can format text, add tables, insert images, and much more.</p>
+            </article>
+        </div>
+
+        <footer class="editor-footer">
+            <span id="wordCount">0 words</span>
+            <span id="charCount">0 characters</span>
+            <span>Page 1</span>
+            <span id="saveMessage">Your work is saved locally.</span>
+        </footer>
+
+    </section>
+
+    <aside class="ai-sidebar">
+        <div class="ai-heading">
+            <span>✦</span>
+            <h2>NEXORA AI</h2>
+        </div>
+
+        <p class="ai-description">
+            Your intelligent writing assistant.
+        </p>
+
+        <div class="ai-notice">
+            AI service not connected yet. Your editor works independently.
+        </div>
+
+        <label for="aiPrompt">What would you like help with?</label>
+
+        <textarea id="aiPrompt"
+            placeholder="Example: Help me write an introduction about space..."
+        ></textarea>
+
+        <button class="ai-button" onclick="requestAI()">
+            ✦ Ask NEXORA AI
+        </button>
+
+        <div class="ai-suggestions">
+            <h3>Writing tools</h3>
+            <button onclick="suggestAI('Improve the selected writing')">Improve writing</button>
+            <button onclick="suggestAI('Check the document grammar')">Check grammar</button>
+            <button onclick="suggestAI('Summarize this document')">Summarize</button>
+            <button onclick="suggestAI('Create an outline')">Create outline</button>
+        </div>
+
+        <div id="aiResponse" class="ai-response">
+            AI responses will appear here once an AI service is connected.
+        </div>
+    </aside>
+
+</main>
+
+<script src="docs.js"></script>
+</body>
+</html>
