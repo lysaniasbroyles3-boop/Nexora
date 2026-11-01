@@ -312,11 +312,21 @@ small {
 
 <script src="learning.js"></script>
 
-<script>
+
+// ==========================================
+// NEXPILOT AI ENGINE V3
+// ==========================================
+
 const storage = {
     projects: "nexpilot_projects",
-    memories: "nexpilot_memories"
+    memories: "nexpilot_memories",
+    history: "nexpilot_conversation_history"
 };
+
+let nexpilotEngine = null;
+let nexpilotLoading = false;
+let nexpilotLoadPromise = null;
+let nexpilotBusy = false;
 
 function readData(key) {
     try {
@@ -325,6 +335,10 @@ function readData(key) {
         return [];
     }
 }
+
+// ==========================================
+// NAVIGATION
+// ==========================================
 
 function showPage(id) {
     document.querySelectorAll(".page").forEach(page => {
@@ -340,129 +354,242 @@ document.querySelectorAll(".nav").forEach(button => {
     button.addEventListener("click", () => showPage(button.dataset.page));
 });
 
+// ==========================================
+// CHAT DISPLAY
+// ==========================================
+
 function addMessage(text, type) {
     const chat = document.getElementById("chat");
     const div = document.createElement("div");
+
     div.className = "message " + type;
     div.textContent = text;
+
     chat.appendChild(div);
     chat.scrollTop = chat.scrollHeight;
+
+    return div;
 }
 
+// ==========================================
+// CONVERSATION MEMORY
+// ==========================================
 
-let nexpilotEngine = null;
-let nexpilotLoading = false;
+let conversationHistory = readData(storage.history);
 
-async function directorResponse(text) {
-    try {
-        if (!nexpilotEngine) {
-            if (nexpilotLoading) {
-                return "Nexpilot is still loading. Please try again shortly.";
-            }
+function saveConversation() {
+    conversationHistory = conversationHistory.slice(-30);
 
-            nexpilotLoading = true;
+    localStorage.setItem(
+        storage.history,
+        JSON.stringify(conversationHistory)
+    );
+}
 
+function rememberConversation(role, content) {
+    conversationHistory.push({
+        role,
+        content
+    });
+
+    saveConversation();
+}
+
+// ==========================================
+// AI MODEL LOADING
+// ==========================================
+
+async function loadNexpilot() {
+    if (nexpilotEngine) return nexpilotEngine;
+
+    if (nexpilotLoadPromise) return nexpilotLoadPromise;
+
+    nexpilotLoading = true;
+
+    nexpilotLoadPromise = (async () => {
+        try {
             const { CreateMLCEngine } = await import(
                 "https://esm.run/@mlc-ai/web-llm"
             );
 
             nexpilotEngine = await CreateMLCEngine(
-                "Qwen2.5-0.5B-Instruct-q0f16_1-MLC"
+                "Qwen2.5-0.5B-Instruct-q4f16_1-MLC"
             );
 
-            nexpilotLoading = false;
-        }
+            return nexpilotEngine;
 
-        const response = await nexpilotEngine.chat.completions.create({
-            messages: [
-                {
-                    role: "system",
-                    content: "You are Nexpilot, the AI assistant built into Nexora. Help users with business management, projects, coding, and productivity. Be friendly, helpful, and honest."
-                },
-                {
-                    role: "user",
-                    content: text
-                }
-            ],
-            temperature: 0.7,
-            max_tokens: 300
+        } finally {
+            nexpilotLoading = false;
+            nexpilotLoadPromise = null;
+        }
+    })();
+
+    return nexpilotLoadPromise;
+}
+
+// ==========================================
+// SAVED MEMORY CONTEXT
+// ==========================================
+
+function getMemoryContext() {
+    const memories = readData(storage.memories);
+
+    if (!memories.length) {
+        return "No saved personal memories yet.";
+    }
+
+    return memories.map((memory, index) =>
+        `${index + 1}. ${memory}`
+    ).join("\n");
+}
+
+// ==========================================
+// NEXPILOT RESPONSE ENGINE
+// ==========================================
+
+async function directorResponse(text) {
+    try {
+        const engine = await loadNexpilot();
+
+        const systemPrompt = `
+You are Nexpilot, the AI Director inside Nexora.
+
+You help with:
+- Business management
+- Coding
+- Website creation
+- Project planning
+- Learning
+- Productivity
+- Creative ideas
+
+PERSONALITY:
+Be friendly, enthusiastic, intelligent and helpful.
+Understand context from earlier messages.
+Avoid repeating identical responses.
+Recognize the user's writing style.
+Give useful, specific answers.
+Never pretend to know something you don't.
+
+SAVED USER MEMORIES:
+${getMemoryContext()}
+
+IMPORTANT:
+Answer the actual question.
+Use relevant conversation history.
+Keep explanations understandable.
+Give examples when useful.
+`;
+
+        const messages = [
+            {
+                role: "system",
+                content: systemPrompt
+            },
+            ...conversationHistory.slice(-20),
+            {
+                role: "user",
+                content: text
+            }
+        ];
+
+        const response = await engine.chat.completions.create({
+            messages,
+            temperature: 0.85,
+            top_p: 0.9,
+            max_tokens: 500
         });
 
-        return response.choices[0].message.content;
+        const answer =
+            response.choices?.[0]?.message?.content?.trim();
+
+        if (!answer) {
+            throw new Error("Empty AI response");
+        }
+
+        return answer;
 
     } catch (error) {
-        nexpilotLoading = false;
         console.error("Nexpilot error:", error);
 
-        return "Nexpilot couldn't load its AI model. Check that your browser supports WebGPU and try again.";
+        return "I encountered a problem with my AI engine. Please try again. Check that your browser supports WebGPU.";
     }
 }
 
-
-    if (lower.includes("website") || lower.includes("html")) {
-        return "For a website, we'll need HTML for structure, CSS for design, and JavaScript for functionality. Tell me what the website should do.";
-    }
-
-    if (lower.includes("remember")) {
-        return "I can save notes in my Memory section. Open Memory to add something you want to keep.";
-    }
-
-    if (lower.includes("business")) {
-        return "Let's plan your business! We can organize products, customers, expenses, and sales.";
-    }
-
-    if (lower.includes("code") || lower.includes("coding")) {
-        return "Let's develop it! Tell me the language, what you're building, and what you want the code to accomplish.";
-    }
-
-    if (lower.includes("hello") || lower.includes("hi")) {
-        return "Hello! Nexpilot is ready for its next mission. What should we work on?";
-    }
-
-    return "Mission received! I'm currently running in starter mode. I can organize projects and save notes, but I need a real AI service connected before I can generate original answers to general questions.";
-}
-
+// ==========================================
+// MESSAGE SYSTEM
+// ==========================================
 
 async function sendMessage() {
+    if (nexpilotBusy) return;
+
     const input = document.getElementById("prompt");
     const text = input.value.trim();
 
     if (!text) return;
 
+    nexpilotBusy = true;
+
     addMessage(text, "user");
     input.value = "";
 
-    if (window.NexoraLearning) {
-        window.NexoraLearning.learnPattern(text);
+    const sendButton =
+        document.querySelector(".input-row button");
+
+    if (sendButton) {
+        sendButton.disabled = true;
+        sendButton.textContent = "THINKING...";
     }
 
-    addMessage("Thinking...", "director");
-
-    const messages = document.querySelectorAll(".director");
-    const thinkingMessage = messages[messages.length - 1];
+    const thinkingMessage = addMessage(
+        "Nexpilot is thinking...",
+        "director"
+    );
 
     try {
+        rememberConversation("user", text);
+
+        if (window.NexoraLearning) {
+            window.NexoraLearning.learnPattern(text);
+        }
+
         const answer = await directorResponse(text);
 
-        if (thinkingMessage) {
-            thinkingMessage.textContent = answer;
-        }
-    } catch (error) {
-        console.error("Nexpilot error:", error);
+        thinkingMessage.textContent = answer;
 
-        if (thinkingMessage) {
-            thinkingMessage.textContent =
-                "Nexpilot encountered an error. Please try again.";
+        rememberConversation("assistant", answer);
+
+    } catch (error) {
+        console.error(error);
+
+        thinkingMessage.textContent =
+            "Something went wrong. Please try again.";
+
+    } finally {
+        nexpilotBusy = false;
+
+        if (sendButton) {
+            sendButton.disabled = false;
+            sendButton.textContent = "SEND";
         }
+
+        input.focus();
     }
 }
 
-document.getElementById("prompt").addEventListener("keydown", event => {
-    if (event.key === "Enter") {
-        sendMessage();
+// ENTER KEY
+document.getElementById("prompt").addEventListener(
+    "keydown",
+    event => {
+        if (event.key === "Enter") {
+            sendMessage();
+        }
     }
-});
+);
 
+// ==========================================
+// PROJECT SYSTEM
+// ==========================================
 
 function addProject() {
     const input = document.getElementById("projectName");
@@ -471,26 +598,44 @@ function addProject() {
     if (!name) return;
 
     const projects = readData(storage.projects);
-    projects.push({name, created: new Date().toLocaleDateString()});
 
-    localStorage.setItem(storage.projects, JSON.stringify(projects));
+    projects.push({
+        name,
+        created: new Date().toLocaleDateString()
+    });
+
+    localStorage.setItem(
+        storage.projects,
+        JSON.stringify(projects)
+    );
+
     input.value = "";
     renderProjects();
 }
 
 function renderProjects() {
     const projects = readData(storage.projects);
-    document.getElementById("projectCount").textContent = projects.length;
 
-    document.getElementById("projectList").replaceChildren();
+    document.getElementById("projectCount").textContent =
+        projects.length;
+
+    const list = document.getElementById("projectList");
+    list.replaceChildren();
 
     projects.forEach(project => {
         const div = document.createElement("div");
+
         div.className = "task";
-        div.textContent = project.name + " — Created " + project.created;
-        document.getElementById("projectList").appendChild(div);
+        div.textContent =
+            project.name + " — Created " + project.created;
+
+        list.appendChild(div);
     });
 }
+
+// ==========================================
+// MEMORY SYSTEM
+// ==========================================
 
 function saveMemory() {
     const input = document.getElementById("memoryInput");
@@ -499,27 +644,40 @@ function saveMemory() {
     if (!value) return;
 
     const memories = readData(storage.memories);
+
     memories.push(value);
 
-    localStorage.setItem(storage.memories, JSON.stringify(memories));
+    localStorage.setItem(
+        storage.memories,
+        JSON.stringify(memories)
+    );
+
     input.value = "";
     renderMemories();
 }
 
 function renderMemories() {
     const list = document.getElementById("memoryList");
+
     list.replaceChildren();
 
     readData(storage.memories).forEach(memory => {
         const div = document.createElement("div");
+
         div.className = "task";
         div.textContent = memory;
+
         list.appendChild(div);
     });
 }
 
+// ==========================================
+// STARTUP
+// ==========================================
+
 renderProjects();
 renderMemories();
+
 </script>
 
 </body>
