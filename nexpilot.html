@@ -349,12 +349,55 @@ function addMessage(text, type) {
     chat.scrollTop = chat.scrollHeight;
 }
 
-function directorResponse(text) {
-    const lower = text.toLowerCase();
 
-    if (lower.includes("project")) {
-        return "Let's organize your project! Open the Project Center and create a project. Then we can plan its features.";
+let nexpilotEngine = null;
+let nexpilotLoading = false;
+
+async function directorResponse(text) {
+    try {
+        if (!nexpilotEngine) {
+            if (nexpilotLoading) {
+                return "Nexpilot is still loading. Please try again shortly.";
+            }
+
+            nexpilotLoading = true;
+
+            const { CreateMLCEngine } = await import(
+                "https://esm.run/@mlc-ai/web-llm"
+            );
+
+            nexpilotEngine = await CreateMLCEngine(
+                "Qwen2.5-0.5B-Instruct-q0f16_1-MLC"
+            );
+
+            nexpilotLoading = false;
+        }
+
+        const response = await nexpilotEngine.chat.completions.create({
+            messages: [
+                {
+                    role: "system",
+                    content: "You are Nexpilot, the AI assistant built into Nexora. Help users with business management, projects, coding, and productivity. Be friendly, helpful, and honest."
+                },
+                {
+                    role: "user",
+                    content: text
+                }
+            ],
+            temperature: 0.7,
+            max_tokens: 300
+        });
+
+        return response.choices[0].message.content;
+
+    } catch (error) {
+        nexpilotLoading = false;
+        console.error("Nexpilot error:", error);
+
+        return "Nexpilot couldn't load its AI model. Check that your browser supports WebGPU and try again.";
     }
+}
+
 
     if (lower.includes("website") || lower.includes("html")) {
         return "For a website, we'll need HTML for structure, CSS for design, and JavaScript for functionality. Tell me what the website should do.";
