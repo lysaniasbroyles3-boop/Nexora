@@ -1,0 +1,300 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NEXORA AI</title>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #080812;
+    color: white;
+    min-height: 100vh;
+}
+
+header {
+    padding: 22px;
+    background: #111126;
+    border-bottom: 1px solid #29294a;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+header h1 {
+    margin: 0;
+    color: #a78bfa;
+    letter-spacing: 3px;
+}
+
+.status {
+    color: #65e6a5;
+    font-size: 13px;
+}
+
+main {
+    max-width: 950px;
+    margin: 30px auto;
+    padding: 15px;
+}
+
+.welcome {
+    text-align: center;
+    margin-bottom: 25px;
+}
+
+.welcome h2 {
+    font-size: 30px;
+}
+
+.welcome p {
+    color: #aaaac5;
+}
+
+.chat-box {
+    background: #111126;
+    border: 1px solid #29294a;
+    border-radius: 18px;
+    height: 480px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+}
+
+.message {
+    padding: 13px 16px;
+    margin: 12px 0;
+    border-radius: 13px;
+    max-width: 85%;
+    line-height: 1.5;
+    white-space: pre-wrap;
+}
+
+.ai {
+    background: #222244;
+    border: 1px solid #39396a;
+    margin-right: auto;
+}
+
+.user {
+    background: #7048d8;
+    margin-left: auto;
+}
+
+.input-area {
+    display: flex;
+    gap: 10px;
+    padding: 15px;
+    border-top: 1px solid #29294a;
+}
+
+input {
+    flex: 1;
+    min-width: 0;
+    padding: 15px;
+    border-radius: 10px;
+    border: 1px solid #39396a;
+    background: #090919;
+    color: white;
+    outline: none;
+}
+
+button {
+    border: none;
+    border-radius: 10px;
+    padding: 13px 20px;
+    background: #8055ed;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #a078ff;
+}
+
+.bottom-info {
+    text-align: center;
+    color: #77778f;
+    font-size: 12px;
+    margin-top: 15px;
+}
+
+.back {
+    display: inline-block;
+    margin-bottom: 15px;
+    color: #b69aff;
+    text-decoration: none;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <h1>NEXORA AI</h1>
+    <span class="status">● AI ONLINE</span>
+</header>
+
+<main>
+
+<a class="back" href="index.html">← Back to Nexora</a>
+
+<div class="welcome">
+    <h2>Your Nexora Assistant</h2>
+    <p>Ask questions, brainstorm ideas, and explore what you can create.</p>
+</div>
+
+<div class="chat-box">
+    <div class="messages" id="messages">
+        <div class="message ai">
+            Hello! I'm Nexora AI. What would you like to work on today?
+        </div>
+    </div>
+
+    <div class="input-area">
+        <input
+            id="userInput"
+            type="text"
+            placeholder="Message Nexora AI..."
+            autocomplete="off"
+        >
+        <button id="sendButton">SEND</button>
+    </div>
+</div>
+
+<div class="bottom-info">
+    NEXORA AI • Learning Engine Edition
+</div>
+
+</main>
+
+<!-- Load the Learning Engine -->
+<script src="learning.js"></script>
+
+<script>
+const messages = document.getElementById("messages");
+const input = document.getElementById("userInput");
+const sendButton = document.getElementById("sendButton");
+
+function addMessage(text, sender) {
+    const message = document.createElement("div");
+    message.className = "message " + sender;
+    message.textContent = text;
+    messages.appendChild(message);
+    messages.scrollTop = messages.scrollHeight;
+}
+
+function getAIResponse(question) {
+    const q = question.toLowerCase().trim();
+
+    // Basic response library
+    const responses = [
+        {
+            words: ["hello", "hi", "hey"],
+            answer: "Hello! Great to hear from you. What are we working on today?"
+        },
+        {
+            words: ["how are you"],
+            answer: "I'm running smoothly and ready to help!"
+        },
+        {
+            words: ["your name", "who are you"],
+            answer: "I'm Nexora AI, your creative and productivity assistant."
+        },
+        {
+            words: ["nexora"],
+            answer: "Nexora is a workspace for building ideas, managing projects, and getting things done!"
+        },
+        {
+            words: ["coding", "code", "programming"],
+            answer: "Let's build something! What programming language or project are you working on?"
+        },
+        {
+            words: ["business", "money", "selling"],
+            answer: "Let's think like a business owner. We can brainstorm products, organize sales, and plan a business."
+        },
+        {
+            words: ["math", "equation"],
+            answer: "I can help explain math concepts. Send me the problem and we'll work through it!"
+        },
+        {
+            words: ["thank you", "thanks"],
+            answer: "You're welcome! What else can we work on?"
+        },
+        {
+            words: ["joke", "funny"],
+            answer: "Why did the computer go to the doctor? It had a virus!"
+        },
+        {
+            words: ["bye", "goodbye"],
+            answer: "See you next time! Your ideas are always welcome here."
+        },
+        {
+            words: ["help"],
+            answer: "I can help brainstorm, explain concepts, plan projects, and answer questions. What do you need?"
+        }
+    ];
+
+    // Check for a matching response
+    for (const item of responses) {
+        if (item.words.some(word => q.includes(word))) {
+            return item.answer;
+        }
+    }
+
+    return "That's an interesting question! I don't have a prepared answer for that yet. I'll keep track of your interaction so Nexora's Learning Engine can help personalize future conversations.";
+}
+
+function sendMessage() {
+    const question = input.value.trim();
+
+    if (!question) return;
+
+    addMessage(question, "user");
+    input.value = "";
+
+    let response = getAIResponse(question);
+
+    // Connect to the Learning Engine if available
+    if (window.NexoraLearning) {
+        try {
+            window.NexoraLearning.learnPattern(question);
+
+            const context = window.NexoraLearning.buildContext();
+
+            console.log("Nexora learning context:", context);
+        } catch (error) {
+            console.log("Learning connection:", error);
+        }
+    }
+
+    setTimeout(() => {
+        addMessage(response, "ai");
+    }, 350);
+}
+
+sendButton.addEventListener("click", sendMessage);
+
+input.addEventListener("keydown", function(event) {
+    if (event.key === "Enter") {
+        sendMessage();
+    }
+});
+</script>
+
+</body>
+</html>
