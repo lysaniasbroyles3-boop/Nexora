@@ -422,6 +422,7 @@ async function directorResponse(text) {
     return "Mission received! I'm currently running in starter mode. I can organize projects and save notes, but I need a real AI service connected before I can generate original answers to general questions.";
 }
 
+
 async function sendMessage() {
     const input = document.getElementById("prompt");
     const text = input.value.trim();
@@ -437,23 +438,31 @@ async function sendMessage() {
 
     addMessage("Thinking...", "director");
 
-    const answer = await directorResponse(text);
-
     const messages = document.querySelectorAll(".director");
-    const lastMessage = messages[messages.length - 1];
+    const thinkingMessage = messages[messages.length - 1];
 
-    if (lastMessage) {
-        lastMessage.textContent = answer;
+    try {
+        const answer = await directorResponse(text);
+
+        if (thinkingMessage) {
+            thinkingMessage.textContent = answer;
+        }
+    } catch (error) {
+        console.error("Nexpilot error:", error);
+
+        if (thinkingMessage) {
+            thinkingMessage.textContent =
+                "Nexpilot encountered an error. Please try again.";
+        }
     }
-}
-    setTimeout(() => {
-        addMessage(directorResponse(text), "director");
-    }, 350);
 }
 
 document.getElementById("prompt").addEventListener("keydown", event => {
-    if (event.key === "Enter") sendMessage();
+    if (event.key === "Enter") {
+        sendMessage();
+    }
 });
+
 
 function addProject() {
     const input = document.getElementById("projectName");
