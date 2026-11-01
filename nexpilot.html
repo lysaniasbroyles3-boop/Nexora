@@ -379,7 +379,7 @@ function directorResponse(text) {
     return "Mission received! I'm currently running in starter mode. I can organize projects and save notes, but I need a real AI service connected before I can generate original answers to general questions.";
 }
 
-function sendMessage() {
+async function sendMessage() {
     const input = document.getElementById("prompt");
     const text = input.value.trim();
 
@@ -389,13 +389,20 @@ function sendMessage() {
     input.value = "";
 
     if (window.NexoraLearning) {
-        try {
-            window.NexoraLearning.learnPattern(text);
-        } catch (error) {
-            console.log("Learning:", error);
-        }
+        window.NexoraLearning.learnPattern(text);
     }
 
+    addMessage("Thinking...", "director");
+
+    const answer = await directorResponse(text);
+
+    const messages = document.querySelectorAll(".director");
+    const lastMessage = messages[messages.length - 1];
+
+    if (lastMessage) {
+        lastMessage.textContent = answer;
+    }
+}
     setTimeout(() => {
         addMessage(directorResponse(text), "director");
     }, 350);
